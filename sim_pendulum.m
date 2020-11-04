@@ -141,18 +141,25 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
              'Color', 'b');
         xlabel('time'); ylabel('$$\dot \phi$$', 'interpreter','latex');
 
+        Vphi = -I*phis(:,1)-I_c*cos(phis(:,1));
+        Vphi_long = -I*phi_long-I_c*cos(phi_long);
+        
         subplot(4,2,[6 8]);
-        plot(phi_long, -I*phi_long-cos(phi_long), 'LineWidth', 0.7);
-        line(phis(:,1), -I*phis(:,1)-cos(phis(:,1)), 'color', 'r', ...
+        plot(phi_long, Vphi_long, 'LineWidth', 0.7);
+        line(phis(:,1), Vphi, 'color', 'r', ...
             'LineWidth', 0.5);
-        line(phis(id,1), -I*phis(id,1)-cos(phis(id,1)), 'Marker', '.', ...
+        line(phis(id,1), Vphi(id), 'Marker', '.', ...
             'MarkerSize', 20, 'Color', 'b');
         xlabel('\phi'); ylabel('$$V(\phi)$$', 'interpreter','latex');
+        
+        axis([min(phi_long) max(phi_long)...
+              min(Vphi_long)*1.1 max(Vphi_long)*1.1])
 
         subplot(4,2,[1 3 5]);
         plot([0, x(id,1);], [0, y(id,1);], ...
             '.-', 'MarkerSize', 20, 'LineWidth', 2);
-        axis equal; axis([-2*L 2*L -2*L 2*L]);
+        axis equal; 
+        axis([-2*L 2*L -2*L 2*L]);
         title(sprintf('Time: %0.2f', ts(id)));
 
         drawnow;
