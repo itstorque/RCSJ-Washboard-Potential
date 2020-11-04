@@ -1,4 +1,4 @@
-global tr phi_last L fr f update_counter I I_c
+global tr phi_last L fr f update_counter I I_c evolve_time value_I value_I_c
 
 %% VARIABLES
 
@@ -9,18 +9,22 @@ L = 2; % length of pendulum
 
 phi_last = [0 0]; %initial phi and dphi/dt
 tr = linspace(0, 10, 1000); % time range
-fr = 2; % frame rate
+fr = 10; % frame rate
+
+Imin = 0;
+Imax = 5;
 
 %% DO NOT MODIFY THESE VARIABLE
 
 I = 0; % modified by UIControl
 I_c = 2.5; % modified by UIControl
 update_counter = 0; % modified by ode_stack
+evolve_time = 0;
 
 %% UI
 
-f = figure(1);
-ax = axes('Parent',f,'position',[0.13 0.39  0.77 0.54]);
+f = figure('Position', [10 10 1100 600]);
+ax = axes('Parent',f,'position',[0.13 0.39  20 0.54]);
 
 bgcolor = f.Color;
 
@@ -28,10 +32,18 @@ note = uicontrol('Parent',f,'Style','text','Position',[125,80,300,23],...
                 'BackgroundColor',bgcolor,...
                 'String', 'the red line in $$V(\phi)$$ represents the path the state can reach');
 
+value_I = uicontrol('Parent',f,'Style','text','Position',[125,100,150,23],...
+                'BackgroundColor',bgcolor,...
+                'String', 'I = '+string(I));
+
+value_I_c = uicontrol('Parent',f,'Style','text','Position',[275,100,150,23],...
+                'BackgroundColor',bgcolor,...
+                'String', 'I_c = '+string(I_c));
+
 bl1min = uicontrol('Parent',f,'Style','text','Position',[50,0,23,23],...
-                'String','0','BackgroundColor',bgcolor);
+                'String',string(Imin),'BackgroundColor',bgcolor);
 bl1max = uicontrol('Parent',f,'Style','text','Position',[500,0,23,23],...
-                'String','5','BackgroundColor',bgcolor);
+                'String',string(Imax),'BackgroundColor',bgcolor);
 bl1 = uicontrol('Parent',f,'Style','text','Position',[240,15,100,23],...
                 'String','value of I','BackgroundColor',bgcolor);
 
@@ -43,7 +55,7 @@ bl2 = uicontrol('Parent',f,'Style','text','Position',[240,55,100,23],...
                 'String','value of I_c','BackgroundColor',bgcolor);
             
 b1 = uicontrol('Parent',f,'Style','slider','Position',[81,0,419,23],...
-              'value',I, 'min',0, 'max',5, 'Value', I);
+              'value',I, 'min',Imin, 'max',Imax, 'Value', I);
             
 b2 = uicontrol('Parent',f,'Style','slider','Position',[81,40,419,23],...
               'value',I_c, 'min',0, 'max',5, 'Value', I_c);
@@ -58,13 +70,16 @@ ode_update(I, Phi02pi, I_c, R, C)
 
 function sys = stack_ode(I_update, Phi02pi, I_c_update, R, C)
 
-    global update_counter I I_c
+    global update_counter I I_c value_I value_I_c
     
     if ~isnan(I_update)
         I = I_update;
     elseif ~isnan(I_c_update)
         I_c = I_c_update;
     end
+    
+    value_I.String = 'I = ' + string(I);
+    value_I_c.String = 'I_c = ' + string(I_c);
     
     update_counter = update_counter + 1;
     
@@ -77,7 +92,7 @@ end
 
 function  sys  = ode_update(I, Phi02pi, I_c, R, C)
 
-    global tr phi_last L fr f update_counter
+    global tr phi_last L fr f update_counter evolve_time
     
     counter = update_counter;
 
@@ -87,18 +102,32 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
     x = [ L*sin(phis(:,1))];
     y = [-L*cos(phis(:,1))];
     
+    ts = ts + evolve_time; % to keep track of time when new ode's are stacked
+    
+    phi_slope = abs(phis(2,1) - phis(1,1));
+    phi_long  = linspace(min(phis(:, 1)) - phi_slope*size(phis, 1)/2, ...
+                         max(phis(:, 1)) + phi_slope*size(phis, 1)/2, ...
+                         size(phis, 1)*4);
+                     
+    if phi_long(end) == phi_long(1) && phi_long(end) == 0  
+        t_slope = ts(2) - ts(1);
+        tlong   = linspace(ts(1)-t_slope*length(ts), ts(end)+t_slope*length(ts), length(ts));
+        
+        phi_long = tlong;
+    end
+    
     for id = 1:fr:length(ts)
         
         k = update_counter;
 
         if ~ishghandle(f) || k ~= counter
-            disp('removed stack')
             break
         end
         
         figure(1)
 
         phi_last = phis(id, :);
+        evolve_time = ts(id);
 
         subplot(4,2,2);
         plot(ts,phis(:,1), 'LineWidth', 0.5);
@@ -112,8 +141,8 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
              'Color', 'b');
         xlabel('time'); ylabel('$$\dot \phi$$', 'interpreter','latex');
 
-        subplot(4,2,6);
-        plot(ts, -I*ts-cos(ts), 'LineWidth', 0.7);
+        subplot(4,2,[6 8]);
+        plot(phi_long, -I*phi_long-cos(phi_long), 'LineWidth', 0.7);
         line(phis(:,1), -I*phis(:,1)-cos(phis(:,1)), 'color', 'r', ...
             'LineWidth', 0.5);
         line(phis(id,1), -I*phis(id,1)-cos(phis(id,1)), 'Marker', '.', ...
@@ -127,6 +156,7 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
         title(sprintf('Time: %0.2f', ts(id)));
 
         drawnow;
+        
     end
     
 end
