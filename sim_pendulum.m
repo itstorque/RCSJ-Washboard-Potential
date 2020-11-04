@@ -99,8 +99,11 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
     [ts, phis] = ode45(@(t, phi) func_dfpen(t, phi, Phi02pi, I, I_c, R, C) ...
                         ,tr, phi_last);
 
-    x = [ L*sin(phis(:,1))];
-    y = [-L*cos(phis(:,1))];
+    x =  L*sin(phis(:,1));
+    y = -L*cos(phis(:,1));
+    
+    dx = max(-2, min(2, phis(:,2))).*cos(phis(:,1));
+    dy = max(-2, min(2, phis(:,2))).*sin(phis(:,1));
     
     ts = ts + evolve_time; % to keep track of time when new ode's are stacked
     
@@ -129,18 +132,21 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
         phi_last = phis(id, :);
         evolve_time = ts(id);
 
+        % phi vs t 
         subplot(4,2,2);
         plot(ts,phis(:,1), 'LineWidth', 0.5);
         line(ts(id), phis(id,1), 'Marker', '.', 'MarkerSize', 20, ...
             'Color', 'b');
         xlabel('time'); ylabel('\phi');
 
+        % dphi/dt vs t
         subplot(4,2,4);
         plot(ts,phis(:,2), 'LineWidth', 0.5);
         line(ts(id), phis(id,2), 'Marker', '.', 'MarkerSize', 20, ...
              'Color', 'b');
         xlabel('time'); ylabel('$$\dot \phi$$', 'interpreter','latex');
 
+        % V(phi) vs phi
         Vphi = -I*phis(:,1)-I_c*cos(phis(:,1));
         Vphi_long = -I*phi_long-I_c*cos(phi_long);
         
@@ -151,13 +157,15 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
         line(phis(id,1), Vphi(id), 'Marker', '.', ...
             'MarkerSize', 20, 'Color', 'b');
         xlabel('\phi'); ylabel('$$V(\phi)$$', 'interpreter','latex');
-        
-        axis([min(phi_long) max(phi_long)...
-              min(Vphi_long)*1.1 max(Vphi_long)*1.1])
 
+        % Pendulum Animation
         subplot(4,2,[1 3 5]);
         plot([0, x(id,1);], [0, y(id,1);], ...
             '.-', 'MarkerSize', 20, 'LineWidth', 2);
+        hold on
+        quiver(x(id,1),y(id,1),dx(id),dy(id),0)
+        hold off
+        
         axis equal; 
         axis([-2*L 2*L -2*L 2*L]);
         title(sprintf('Time: %0.2f', ts(id)));
