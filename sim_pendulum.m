@@ -1,6 +1,8 @@
-global tr phi_last L fr f update_counter I I_c evolve_time value_I value_I_c
+global tr phi_last L fr f update_counter I I_c evolve_time value_I value_I_c plot_settings
 
 %% VARIABLES
+
+adapt_for_video = true;
 
 Phi02pi = 1/(2*pi);%2.07e-15 / (2*pi);
 R = 1;
@@ -20,6 +22,11 @@ I = 0; % modified by UIControl
 I_c = 2.5; % modified by UIControl
 update_counter = 0; % modified by ode_stack
 evolve_time = 0;
+
+plot_settings = [0.5 0.7 20];
+if adapt_for_video==1
+    plot_settings = [1.3 1.7 40];
+end
 
 %% UI
 
@@ -92,7 +99,7 @@ end
 
 function  sys  = ode_update(I, Phi02pi, I_c, R, C)
 
-    global tr phi_last L fr f update_counter evolve_time
+    global tr phi_last L fr f update_counter evolve_time plot_settings
     
     counter = update_counter;
 
@@ -134,16 +141,16 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
 
         % phi vs t 
         subplot(4,2,2);
-        plot(ts,phis(:,1), 'LineWidth', 0.5);
-        line(ts(id), phis(id,1), 'Marker', '.', 'MarkerSize', 20, ...
-            'Color', 'b');
+        plot(ts,phis(:,1), 'LineWidth', plot_settings(1));
+        line(ts(id), phis(id,1), 'Marker', '.', 'MarkerSize', ...
+            plot_settings(3), 'Color', 'b');
         xlabel('time'); ylabel('\phi');
 
         % dphi/dt vs t
         subplot(4,2,4);
-        plot(ts,phis(:,2), 'LineWidth', 0.5);
-        line(ts(id), phis(id,2), 'Marker', '.', 'MarkerSize', 20, ...
-             'Color', 'b');
+        plot(ts,phis(:,2), 'LineWidth', plot_settings(1));
+        line(ts(id), phis(id,2), 'Marker', '.', 'MarkerSize', ...
+            plot_settings(3), 'Color', 'b');
         xlabel('time'); ylabel('$$\dot \phi$$', 'interpreter','latex');
 
         % V(phi) vs phi
@@ -151,24 +158,24 @@ function  sys  = ode_update(I, Phi02pi, I_c, R, C)
         Vphi_long = -I*phi_long-I_c*cos(phi_long);
         
         subplot(4,2,[6 8]);
-        plot(phi_long, Vphi_long, 'LineWidth', 0.7);
+        plot(phi_long, Vphi_long, 'LineWidth', plot_settings(2));
         line(phis(:,1), Vphi, 'color', 'r', ...
-            'LineWidth', 0.5);
+            'LineWidth', plot_settings(1));
         line(phis(id,1), Vphi(id), 'Marker', '.', ...
-            'MarkerSize', 20, 'Color', 'b');
+            'MarkerSize', plot_settings(3), 'Color', 'b');
         xlabel('\phi'); ylabel('$$V(\phi)$$', 'interpreter','latex');
 
         % Pendulum Animation
         subplot(4,2,[1 3 5]);
         plot([0, x(id,1);], [0, y(id,1);], ...
-            '.-', 'MarkerSize', 20, 'LineWidth', 2);
+            '.-', 'MarkerSize', plot_settings(3), 'LineWidth', 2);
         hold on
-        quiver(x(id,1),y(id,1),dx(id),dy(id),0)
+        quiver(x(id,1),y(id,1),dx(id),dy(id),0, 'LineWidth', plot_settings(1))
         hold off
         
         axis equal; 
         axis([-2*L 2*L -2*L 2*L]);
-        title(sprintf('Time: %0.2f', ts(id)));
+        title(sprintf('Pendulum Analog @ Time: %0.2f', ts(id)));
 
         drawnow;
         
