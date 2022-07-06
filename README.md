@@ -10,7 +10,7 @@ The model shows a pendulum analog, where force is related to the current applied
 pendulum properties correspond to the model constants. 
 
 The mechanical analog for the model is as follows:
-$$ml^2\ddot\phi+\Gamma\dot\Phi+mgl\sin\phi=\tau_{applied}$$
+$$ml^2\ddot\phi+\Gamma\dot\phi+mgl\sin\phi=\tau_{applied}$$
 
 Where the moment of inertia is related to the capacitance term as
 $ml^2\equiv\dfrac{\Phi_0}{2\pi}C$
