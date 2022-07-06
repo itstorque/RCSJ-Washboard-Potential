@@ -10,14 +10,14 @@ The model shows a pendulum analog, where force is related to the current applied
 pendulum properties correspond to the model constants. 
 
 The mechanical analog for the model is as follows:
-<img src="https://render.githubusercontent.com/render/math?math=ml^2\ddot\phi%2B\Gamma\dot\Phi%2Bmgl\sin\phi=\tau_{applied}">
+$$ml^2\ddot\phi+\Gamma\dot\Phi+mgl\sin\phi=\tau_{applied}$$
 
 Where the moment of inertia is related to the capacitance term as
-<img src="https://render.githubusercontent.com/render/math?math=ml^2\equiv\frac{\Phi_0}{2\pi}C">
-
+$ml^2\equiv\dfrac{\Phi_0}{2\pi}C$
 , the damping coefficient as 
-<img src="https://render.githubusercontent.com/render/math?math=\Gamma\equiv\frac{\Phi_0}{2\pi}\frac{1}{R}">
+$\Gamma\equiv\dfrac{\Phi_0}{2\pi R}$
 and an analog between the applied torque to driving current, where 
-<img src="https://render.githubusercontent.com/render/math?math=L=1">, <img src="https://render.githubusercontent.com/render/math?math=mg=I_c">
+$L=1$, 
+$mg=I_c$
 and
-<img src="https://render.githubusercontent.com/render/math?math=\tau_{applied}=F_{drive}\cdot L\equiv\frac{\Phi_0}{2\pi}\frac{1}{R}">
+$\tau_{applied}=F_{drive}\cdot L\equiv\dfrac{\Phi_0}{2\pi}\dfrac{1}{R}$
