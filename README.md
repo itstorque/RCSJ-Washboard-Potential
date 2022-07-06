@@ -17,7 +17,7 @@ $ml^2\equiv\dfrac{\Phi_0}{2\pi}C$
 , the damping coefficient as 
 $\Gamma\equiv\dfrac{\Phi_0}{2\pi R}$
 and an analog between the applied torque to driving current, where 
-$L=1$, 
+$l=1$, 
 $mg=I_c$
 and
-$\tau_{applied}=F_{drive}\cdot L\equiv\dfrac{\Phi_0}{2\pi}\dfrac{1}{R}$
+$\tau_{\text{applied}}=F_{drive}\cdot l\equiv\dfrac{\Phi_0}{2\pi R}$
